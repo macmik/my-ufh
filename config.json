@@ -1,0 +1,82 @@
+{
+  "hysteresis": 0.2,
+  "supervisor": {
+    "refresh_interval": 1
+  },
+  "zone_controller": {
+    "refresh_interval": 1
+  },
+  "measurement_collector": {
+    "refresh_interval": 1
+  },
+  "slaves": {
+    "gora": {
+      "ip": "192.168.68.102",
+      "temperatures_app_port": 8001,
+      "relay_controller_app_port": 8002,
+      "relay_type": "low_enabled"
+    },
+    "dol": {
+      "ip": "192.168.68.108",
+      "temperatures_app_port": 8001,
+      "relay_controller_app_port": 8002,
+      "relay_type": "low_enabled"
+    }
+  },
+  "settings": {
+    "ip": "127.0.0.1",
+    "port": 8000,
+    "refresh_interval": 5
+  },
+  "zones": [
+    {
+      "id": "sypialnia_korytarz",
+      "name": "Sypialnia & Korytarz",
+      "mac": "A4:C1:38:C8:B9:83",
+      "gpio": 11,
+      "slave": "gora"
+    },
+    {
+      "id": "pokoj_gabrysia",
+      "name": "Pokoj Gabrysia",
+      "mac": "A4:C1:38:0D:CC:C1",
+      "gpio": 3,
+      "slave": "gora"
+    },
+    {
+      "id": "pokoj_pusty",
+      "name": "Pokoj pusty",
+      "mac": "A4:C1:38:24:54:C9",
+      "gpio": 5,
+      "slave": "gora"
+    },
+    {
+      "id": "lazienka_gora",
+      "name": "Lazienka gora",
+      "mac": "A4:C1:38:AF:8C:E3",
+      "gpio": 7,
+      "slave": "gora"
+    },
+    {
+      "id": "lazienka_dol",
+      "name": "Lazienka dol",
+      "mac": "A4:C1:38:58:F4:47",
+      "gpio": 3,
+      "slave": "dol"
+    },
+    {
+      "id": "salon_kuchnia_przedpokoj",
+      "name": "Salon & Kuchnia & Przedpokoj",
+      "mac": "A4:C1:38:50:D3:A1",
+      "gpio": 5,
+      "slave": "dol"
+    },
+    {
+      "id": "gabinet",
+      "name": "Gabinet",
+      "mac": "A4:C1:38:52:CF:61",
+      "gpio": 7,
+      "slave": "dol"
+    }
+  ]
+}
