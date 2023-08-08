@@ -4,10 +4,10 @@
     "refresh_interval": 1
   },
   "zone_controller": {
-    "refresh_interval": 1
+    "refresh_interval": 5
   },
   "measurement_collector": {
-    "refresh_interval": 1
+    "refresh_interval": 5
   },
   "slaves": {
     "gora": {
