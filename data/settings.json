@@ -1,0 +1,86 @@
+{
+  "sypialnia_korytarz": {
+    "day": {
+      "hour": 7,
+      "minute": 0,
+      "temperature": 27.0
+    },
+    "night": {
+      "hour": 7,
+      "minute": 0,
+      "temperature": 20.0
+    }
+  },
+  "pokoj_gabrysia": {
+    "day": {
+      "hour": 7,
+      "minute": 0,
+      "temperature": 20.0
+    },
+    "night": {
+      "hour": 7,
+      "minute": 0,
+      "temperature": 20.0
+    }
+  },
+  "pokoj_pusty": {
+    "day": {
+      "hour": 7,
+      "minute": 0,
+      "temperature": 20.0
+    },
+    "night": {
+      "hour": 7,
+      "minute": 0,
+      "temperature": 20.0
+    }
+  },
+  "lazienka_gora": {
+    "day": {
+      "hour": 7,
+      "minute": 0,
+      "temperature": 20.0
+    },
+    "night": {
+      "hour": 7,
+      "minute": 0,
+      "temperature": 20.0
+    }
+  },
+  "lazienka_dol": {
+    "day": {
+      "hour": 7,
+      "minute": 0,
+      "temperature": 20.0
+    },
+    "night": {
+      "hour": 7,
+      "minute": 0,
+      "temperature": 20.0
+    }
+  },
+  "salon_kuchnia_przedpokoj": {
+    "day": {
+      "hour": 7,
+      "minute": 0,
+      "temperature": 20.0
+    },
+    "night": {
+      "hour": 7,
+      "minute": 0,
+      "temperature": 20.0
+    }
+  },
+  "gabinet": {
+    "day": {
+      "hour": 7,
+      "minute": 0,
+      "temperature": 20.0
+    },
+    "night": {
+      "hour": 7,
+      "minute": 0,
+      "temperature": 25.0
+    }
+  }
+}
