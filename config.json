@@ -25,7 +25,7 @@
   },
   "settings": {
     "ip": "127.0.0.1",
-    "port": 8000,
+    "port": 8001,
     "refresh_interval": 5
   },
   "zones": [

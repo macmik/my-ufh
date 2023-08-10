@@ -19,6 +19,11 @@ class ZoneController(Worker):
         self._heating_started_ts = None
         self._refresh_interval = self._config['zone_controller']['refresh_interval']
         self._logger = logging.getLogger(self._zone.id)
+        self._init()
+
+    def _init(self):
+        self._logger.debug(f'Initializing {self._zone.id}.')
+        self._slave_interface.disable_loop(self._zone.gpio)
 
     def is_heating_required(self):
         return self._should_heat.is_set()
