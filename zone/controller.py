@@ -45,7 +45,7 @@ class ZoneController(Worker):
         self._check_temperature(measurement, setting)
 
     def _check_temperature(self, measurement, setting):
-        now = dt_time()
+        now = DT.now().time()
 
         date_time_range = (
             dt_time(hour=setting.day.hour, minute=setting.day.minute),
