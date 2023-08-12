@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <table id="data" class="table table-striped">
+    <thead>
+      <tr>
+        <th>Nazwa</th>
+        <th>Aktualna temperatura</th>
+        <th>Zadana temperatura</th>
+        <th>Grzanie</th>
+        <th>Start grzania</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for location in locations %}
+        <tr>
+          <td>{{ location.name }}</td>
+          <td>{{ location.temperature }}</td>
+          <td>{{ location.required_temperature }}</td>
+          <td>{{ location.heating }}</td>
+          <td>{{ location.heating_started }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

@@ -17,6 +17,8 @@ class ZoneController(Worker):
         self._should_heat = Event()
         self._should_heat.clear()
         self._heating_started_ts = None
+        self._current_temperature = None
+        self._required_temperature = None
         self._refresh_interval = self._config['zone_controller']['refresh_interval']
         self._logger = logging.getLogger(self._zone.id)
         self._init()
@@ -27,6 +29,18 @@ class ZoneController(Worker):
 
     def is_heating_required(self):
         return self._should_heat.is_set()
+
+    def get_current_temperature(self):
+        return self._current_temperature
+
+    def get_required_temperature(self):
+        return self._required_temperature
+
+    def get_zone_name(self):
+        return self._zone.name
+
+    def get_heating_started_ts(self):
+        return self._heating_started_ts
 
     def _do(self):
         try:
@@ -43,6 +57,7 @@ class ZoneController(Worker):
         setting = settings.get_setting_by_id(self._zone.id)
         measurement = self._measurement_collector.get_measurements_by_mac(self._zone.mac)
         self._check_temperature(measurement, setting)
+        self._current_temperature = measurement.temperature
 
     def _check_temperature(self, measurement, setting):
         now = DT.now().time()
@@ -62,6 +77,7 @@ class ZoneController(Worker):
         )
         self._check_heating(measurement.temperature, temperature_required)
         self._logger.debug(f'Is heating required = {self._should_heat.is_set()}.')
+        self._required_temperature = temperature_required
 
     def _check_heating(self, current_temperature, temperature_required):
         if current_temperature < temperature_required - self._config['hysteresis']:

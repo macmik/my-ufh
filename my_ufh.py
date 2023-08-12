@@ -5,7 +5,7 @@ from os import environ
 from pathlib import Path
 from threading import Event
 
-from flask import Flask
+from flask import Flask, render_template
 
 from zone.zone import Zone
 from zone.controller import ZoneController
@@ -60,10 +60,31 @@ def create_app():
     measurement_collector.start()
     _ = [controller.start() for controller in zone_controllers]
     supervisor.start()
+
+    app.zone_controllers = zone_controllers
     return app
 
 
 app = create_app()
+
+
+@app.route('/table')
+def table():
+    state = []
+    for zone_ctrl in app.zone_controllers:
+        try:
+            state.append({
+                'name': zone_ctrl.get_zone_name(),
+                'temperature': zone_ctrl.get_current_temperature(),
+                'required_temperature': zone_ctrl.get_required_temperature(),
+                'heating': zone_ctrl.is_heating_required(),
+                'heating_started': zone_ctrl.get_heating_started_ts(),
+            })
+        except Exception as e:
+            logging.error(e)
+
+    return render_template('table.html', title='status', locations=state)
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8000)
