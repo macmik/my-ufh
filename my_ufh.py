@@ -5,14 +5,14 @@ from os import environ
 from pathlib import Path
 from threading import Event
 
-from flask import Flask, jsonify
+from flask import Flask
 
 from zone.zone import Zone
 from zone.controller import ZoneController
 from settings.worker import SettingsUpdaterWorker
 from slave.interface import SlaveInterface
 from measurement_collector import MeasurementCollector
-from supervisor import Supervisor
+from heating_supervisor import HeatingSupervisor
 
 
 def setup_logging():
@@ -54,7 +54,7 @@ def create_app():
                                        settings_worker,
                                        measurement_collector,
                                        slave_interfaces[zone.slave]) for zone in zones]
-    supervisor = Supervisor(config, stop_event, zone_controllers)
+    supervisor = HeatingSupervisor(config, stop_event, zone_controllers)
 
     settings_worker.start()
     measurement_collector.start()
