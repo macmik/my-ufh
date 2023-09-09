@@ -1,7 +1,7 @@
 {
   "hysteresis": 0.2,
   "supervisor": {
-    "refresh_interval": 1
+    "refresh_interval": 5
   },
   "zone_controller": {
     "refresh_interval": 5

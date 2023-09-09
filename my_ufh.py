@@ -62,6 +62,7 @@ def create_app():
     supervisor.start()
 
     app.zone_controllers = zone_controllers
+    app.heating_supervisor = supervisor
     return app
 
 
@@ -84,6 +85,17 @@ def table():
             logging.error(e)
 
     return render_template('table.html', title='status', locations=state)
+
+@app.route('/enable')
+def enable_heating():
+    app.heating_supervisor.user_start_heating()
+    return 'ok'
+
+
+@app.route('/disable')
+def disable_heating():
+    app.heating_supervisor.user_start_heating()
+    return 'ok'
 
 
 if __name__ == '__main__':
