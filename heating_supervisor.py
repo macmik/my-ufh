@@ -31,7 +31,7 @@ class HeatingSupervisor(Worker):
             self._start_heating()
         elif not heating_required and self._is_boiler_heating:
             self._stop_heating()
-
+        logger.debug(f'Heating required = {heating_required}.')
         time.sleep(self._sleep_time)
 
     def _start_heating(self):

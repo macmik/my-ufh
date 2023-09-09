@@ -94,7 +94,7 @@ def enable_heating():
 
 @app.route('/disable')
 def disable_heating():
-    app.heating_supervisor.user_start_heating()
+    app.heating_supervisor.user_stop_heating()
     return 'ok'
 
 
