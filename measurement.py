@@ -9,3 +9,13 @@ class Measurement:
     battery: int
     humidity: int
     temperature: float
+
+
+def get_pre_initialized():
+    return Measurement(
+        mac='None',
+        last_updated=DT.utcnow(),
+        battery=-1,
+        humidity=-1,
+        temperature=-1,
+    )

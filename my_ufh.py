@@ -74,12 +74,15 @@ def table():
     state = []
     for zone_ctrl in app.zone_controllers:
         try:
+            last_measurement = zone_ctrl.get_last_measurement()
+            heating_started_ts = zone_ctrl.get_heating_started_ts()
             state.append({
                 'name': zone_ctrl.get_zone_name(),
-                'temperature': zone_ctrl.get_current_temperature(),
+                'temperature': last_measurement.temperature,
+                'last_update': last_measurement.last_updated.strftime('%Y%m%d-%H:%M:%S'),
                 'required_temperature': zone_ctrl.get_required_temperature(),
                 'heating': zone_ctrl.is_heating_required(),
-                'heating_started': zone_ctrl.get_heating_started_ts(),
+                'heating_started': heating_started_ts.strftime('%Y%m%d-%H:%M:%S') if heating_started_ts else None,
             })
         except Exception as e:
             logging.error(e)

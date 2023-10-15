@@ -3,6 +3,7 @@ import logging
 from datetime import time as dt_time
 from datetime import datetime as DT
 from threading import Event
+from measurement import get_pre_initialized
 
 from worker import Worker
 
@@ -17,7 +18,7 @@ class ZoneController(Worker):
         self._should_heat = Event()
         self._should_heat.clear()
         self._heating_started_ts = None
-        self._current_temperature = None
+        self._latest_measurement = get_pre_initialized()
         self._required_temperature = None
         self._refresh_interval = self._config['zone_controller']['refresh_interval']
         self._logger = logging.getLogger(self._zone.id)
@@ -30,8 +31,8 @@ class ZoneController(Worker):
     def is_heating_required(self):
         return self._should_heat.is_set()
 
-    def get_current_temperature(self):
-        return self._current_temperature
+    def get_last_measurement(self):
+        return self._latest_measurement
 
     def get_required_temperature(self):
         return self._required_temperature
@@ -57,7 +58,7 @@ class ZoneController(Worker):
         setting = settings.get_setting_by_id(self._zone.id)
         measurement = self._measurement_collector.get_measurements_by_mac(self._zone.mac)
         self._check_temperature(measurement, setting)
-        self._current_temperature = measurement.temperature
+        self._latest_measurement = measurement
 
     def _check_temperature(self, measurement, setting):
         now = DT.now().time()
