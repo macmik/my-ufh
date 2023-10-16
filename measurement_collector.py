@@ -1,6 +1,7 @@
 import time
 import logging
 from threading import Lock
+from datetime import datetime as DT
 
 from worker import Worker
 from measurement import Measurement
@@ -28,12 +29,14 @@ class MeasurementCollector(Worker):
         for interface in self._slave_interfaces:
             try:
                 for mac, data in interface.get_measurements().items():
+                    last_updated = DT.strptime(data['last_updated'], '%Y%m%d-%H%M%S.%f')
                     if mac in measurements_per_mac:
-                        logger.debug(f'{mac} already in measurements. Skipping')
-                        continue
+                        if last_updated < measurements_per_mac[mac].last_updated:
+                            logger.debug(f'{mac} newer ts already in measurements. Skipping')
+                            continue
                     measurements_per_mac[mac] = Measurement(
                         mac=mac,
-                        last_updated=data['last_updated'],
+                        last_updated=last_updated,
                         **data['measurement']
                     )
             except Exception as e:
