@@ -6,6 +6,7 @@
       <tr>
         <th>Nazwa</th>
         <th>Aktualna temperatura</th>
+        <th>Odświeżona</th>
         <th>Zadana temperatura</th>
         <th>Grzanie</th>
         <th>Start grzania</th>
@@ -16,6 +17,7 @@
         <tr>
           <td>{{ location.name }}</td>
           <td>{{ location.temperature }}</td>
+          <td>{{ location.last_update }}</td>
           <td>{{ location.required_temperature }}</td>
           <td>{{ location.heating }}</td>
           <td>{{ location.heating_started }}</td>
