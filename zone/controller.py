@@ -3,8 +3,8 @@ import logging
 from datetime import time as dt_time
 from datetime import datetime as DT
 from threading import Event
-from measurement import get_pre_initialized
 
+from measurement import get_pre_initialized
 from worker import Worker
 
 

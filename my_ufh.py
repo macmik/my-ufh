@@ -87,7 +87,15 @@ def table():
         except Exception as e:
             logging.error(e)
 
-    return render_template('table.html', title='status', locations=state)
+    heating_time_collector = app.heating_supervisor.get_heating_time_collector()
+    heating_time_data = heating_time_collector.get_heating_minutes_per_day()
+    labels = [day.strftime('%Y-%m-%d') for day in heating_time_data]
+
+    return render_template('table.html',
+                           title='status',
+                           locations=state,
+                           labels=labels,
+                           values=list(heating_time_data.values()))
 
 @app.route('/enable')
 def enable_heating():
