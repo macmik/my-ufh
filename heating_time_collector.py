@@ -38,18 +38,6 @@ class HeatingTimeCollector:
                 day=end_ts.day,
             ), end_ts)
 
-    '''def get_plot(self):
-        days = self._heating_minutes_per_day.keys()
-        values = self._heating_minutes_per_day.values()
-        plt.bar(days, values)
-        plt.xlabel('date')
-        plt.ylabel('minutes')
-
-        buffer = io.BytesIO()
-        plt.savefig(buffer, format='png')
-        buffer.seek(0)
-        return buffer'''
-
     def _maintain(self):
         today = DT.now()
         for date in list(self._heating_minutes_per_day.keys()):
