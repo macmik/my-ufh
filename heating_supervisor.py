@@ -59,5 +59,8 @@ class HeatingSupervisor(Worker):
         logger.debug('User requested enable heating.')
         self._heating_event.set()
 
+    def get_user_heating_enabled(self):
+        return self._heating_event.is_set()
+
     def get_heating_time_collector(self):
         return self._heating_time_collector

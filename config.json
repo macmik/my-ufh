@@ -9,6 +9,7 @@
   "measurement_collector": {
     "refresh_interval": 5
   },
+
   "boiler" : {
     "ip": "127.0.0.1",
     "port": 8002,
@@ -32,7 +33,9 @@
   "settings": {
     "ip": "127.0.0.1",
     "port": 8001,
-    "refresh_interval": 5
+    "refresh_interval": 5,
+    "standard_settings_resource": "settings.json",
+    "vacation_settings_resource": "settings_vacation.json"
   },
   "zones": [
     {
