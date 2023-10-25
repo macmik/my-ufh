@@ -5,7 +5,7 @@ from os import environ
 from pathlib import Path
 from threading import Event
 
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 
 from zone.zone import Zone
 from zone.controller import ZoneController
@@ -63,6 +63,7 @@ def create_app():
 
     app.zone_controllers = zone_controllers
     app.heating_supervisor = supervisor
+    app.settings_worker = settings_worker
     return app
 
 
@@ -97,16 +98,39 @@ def table():
                            labels=labels,
                            values=list(heating_time_data.values()))
 
-@app.route('/enable')
+
+@app.route('/enable_heating')
 def enable_heating():
     app.heating_supervisor.user_start_heating()
     return 'ok'
 
 
-@app.route('/disable')
+@app.route('/disable_heating')
 def disable_heating():
     app.heating_supervisor.user_stop_heating()
     return 'ok'
+
+
+@app.route('/set_vacation_settings')
+def set_vacation_settings():
+    app.settings_worker.set_vacation_settings()
+    return 'ok'
+
+
+@app.route('/set_standard_settings')
+def set_standard_settings():
+    app.settings_worker.set_standard_settings()
+    return 'ok'
+
+
+@app.route('/get_status')
+def get_status():
+    return jsonify(
+        {
+            'vacation_mode_enabled': app.settings_worker.get_vacation_enabled(),
+            'user_heating_enabled': app.heating_supervisor.get_user_heating_enabled(),
+        }
+    )
 
 
 if __name__ == '__main__':
