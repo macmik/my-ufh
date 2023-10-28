@@ -9,7 +9,7 @@
   "measurement_collector": {
     "refresh_interval": 5
   },
-
+  "db_path": "heating_data.db",
   "boiler" : {
     "ip": "127.0.0.1",
     "port": 8002,
