@@ -70,8 +70,8 @@ def create_app():
 app = create_app()
 
 
-@app.route('/table')
-def table():
+@app.route('/')
+def index():
     state = []
     for zone_ctrl in app.zone_controllers:
         try:
@@ -88,13 +88,17 @@ def table():
         except Exception as e:
             logging.error(e)
 
+    return render_template('index.html',
+                           locations=state)
+
+
+@app.route('/heating_data')
+def heating_data():
     heating_time_collector = app.heating_supervisor.get_heating_time_collector()
     heating_time_data = heating_time_collector.get_heating_minutes_per_day()
     labels = [day.strftime('%Y-%m-%d') for day in heating_time_data]
 
-    return render_template('table.html',
-                           title='status',
-                           locations=state,
+    return render_template('heating.html',
                            labels=labels,
                            values=list(heating_time_data.values()))
 
