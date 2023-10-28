@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
-{% block table %}
-  <h1>{{ title }}</h1>
+{% block content %}
   <hr>
   <table id="data" class="table table-striped">
     <thead>
@@ -27,33 +26,4 @@
       {% endfor %}
     </tbody>
   </table>
-{% endblock %}
-
-{% block plot %}
-    <div>
-      <canvas id="myChart" width="400" height="400"></canvas>
-    </div>
-
-    <script>
-      const ctx = document.getElementById('myChart');
-
-      new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: {{ labels | safe }},
-          datasets: [{
-            label: 'Heating time',
-            data: {{ values | safe }},
-            borderWidth: 1
-          }]
-        },
-        options: {
-          scales: {
-            y: {
-              beginAtZero: true
-            }
-          }
-        }
-      });
-    </script>
 {% endblock %}
