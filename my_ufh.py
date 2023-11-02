@@ -5,7 +5,7 @@ from os import environ
 from pathlib import Path
 from threading import Event
 
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, redirect, url_for
 
 from zone.zone import Zone
 from zone.controller import ZoneController
@@ -89,9 +89,13 @@ def index():
             })
         except Exception as e:
             logging.error(e)
-
+    settings = {
+        'heating_enabled': app.heating_supervisor.get_user_heating_enabled(),
+        'vacation_enabled': app.settings_worker.get_vacation_enabled(),
+    }
     return render_template('index.html',
-                           locations=state)
+                           locations=state,
+                           settings=settings)
 
 
 @app.route('/heating_data')
@@ -108,25 +112,25 @@ def heating_data():
 @app.route('/enable_heating')
 def enable_heating():
     app.heating_supervisor.user_start_heating()
-    return 'ok'
+    return redirect('/')
 
 
 @app.route('/disable_heating')
 def disable_heating():
     app.heating_supervisor.user_stop_heating()
-    return 'ok'
+    return redirect('/')
 
 
 @app.route('/set_vacation_settings')
 def set_vacation_settings():
     app.settings_worker.set_vacation_settings()
-    return 'ok'
+    return redirect('/')
 
 
 @app.route('/set_standard_settings')
 def set_standard_settings():
     app.settings_worker.set_standard_settings()
-    return 'ok'
+    return redirect('/')
 
 
 @app.route('/get_status')

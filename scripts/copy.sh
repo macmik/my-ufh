@@ -1,1 +1,1 @@
-rsync -avr --exclude "*venv*" --exclude ".git*" --exclude ".idea" --exclude "*pyc" --exclude "*json" ../ pi@192.168.68.106:/home/pi/my-ufh
+rsync -avr --exclude "*venv*" --exclude ".git*" --exclude ".idea" --exclude ".db" --exclude "*pyc" --exclude "*json" ../ pi@192.168.68.106:/home/pi/my-ufh
