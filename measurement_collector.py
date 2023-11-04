@@ -10,13 +10,14 @@ logger = logging.getLogger(__name__)
 
 
 class MeasurementCollector(Worker):
-    def __init__(self, config, stop_event, slave_interfaces):
+    def __init__(self, config, stop_event, slave_interfaces, db_handler):
         super().__init__(config, stop_event)
         self._lock = Lock()
         self._config = config
         self._refresh_interval = self._config['measurement_collector']['refresh_interval']
         self._slave_interfaces = slave_interfaces
         self._current_measurements_per_mac = {}
+        self._db_handler = db_handler
 
     def _do(self):
         with self._lock:
@@ -34,11 +35,13 @@ class MeasurementCollector(Worker):
                         if last_updated < measurements_per_mac[mac].last_updated:
                             logger.debug(f'{mac} newer ts already in measurements. Skipping')
                             continue
-                    measurements_per_mac[mac] = Measurement(
+                    measurement = Measurement(
                         mac=mac,
                         last_updated=last_updated,
                         **data['measurement']
                     )
+                    measurements_per_mac[mac] = measurement
+                    self._db_handler.add_measurement(measurement)
             except Exception as e:
                 logger.error(str(e))
         return measurements_per_mac

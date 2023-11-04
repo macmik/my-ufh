@@ -13,6 +13,7 @@ from settings.worker import SettingsUpdaterWorker
 from slave.interface import SlaveInterface
 from measurement_collector import MeasurementCollector
 from heating_supervisor import HeatingSupervisor
+from db.sqlite3_handler import DatabaseHandler
 
 
 def setup_logging():
@@ -44,9 +45,10 @@ def create_app():
     config = json.loads(Path('config.json').read_text())
     stop_event = Event()
 
+    db_handler = DatabaseHandler(config)
     slave_interfaces = {name: SlaveInterface(name, config) for name in config['slaves'].keys()}
     settings_worker = SettingsUpdaterWorker(config, stop_event)
-    measurement_collector = MeasurementCollector(config, stop_event, slave_interfaces.values())
+    measurement_collector = MeasurementCollector(config, stop_event, slave_interfaces.values(), db_handler)
     zones = [Zone(**zone_config) for zone_config in config['zones']]
     zone_controllers = [ZoneController(config,
                                        stop_event,
@@ -54,7 +56,7 @@ def create_app():
                                        settings_worker,
                                        measurement_collector,
                                        slave_interfaces[zone.slave]) for zone in zones]
-    supervisor = HeatingSupervisor(config, stop_event, zone_controllers)
+    supervisor = HeatingSupervisor(config, stop_event, zone_controllers, db_handler)
 
     settings_worker.start()
     measurement_collector.start()
