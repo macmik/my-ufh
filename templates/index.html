@@ -2,7 +2,7 @@
 
 {% block content %}
   <hr>
-  <table id="data" class="table table-striped">
+  <table id="heating-data" class="table table-striped">
     <thead>
       <tr>
         <th>Nazwa</th>
@@ -24,6 +24,30 @@
           <td>{{ location.heating_started }}</td>
         </tr>
       {% endfor %}
+    </tbody>
+  </table>
+  <hr>
+  <h2>Ustawienia</h2>
+  <table id="settings" class="table table-striped">
+    <thead>
+        <th>Nazwa</th>
+        <th>Aktualna ustawienie</th>
+        <th></th>
+        <th></th>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Grzanie właczone</td>
+        <td>{{ settings.heating_enabled }}</td>
+        <td><form method="get" action="/enable_heating"><input type="submit" name="enable_heating" value="Włącz"></form></td>
+        <td><form method="get" action="/disable_heating"><input type="submit" name="disable_heating" value="Wyłącz"></form></td>
+      </tr>
+      <tr>
+        <td>Tryb wakacyjny</td>
+        <td>{{ settings.vacation_enabled }}</td>
+        <td><form method="get" action="/set_vacation_settings"><input type="submit" name="enable_vacation" value="Włącz"></form></td>
+        <td><form method="get" action="/set_standard_settings"><input type="submit" name="disable_vacation" value="Wyłącz"></form></td>
+      </tr>
     </tbody>
   </table>
 {% endblock %}
