@@ -2,6 +2,8 @@ import time
 import logging
 from threading import Event
 from datetime import datetime as DT
+from datetime import timedelta as TD
+
 
 from worker import Worker
 from boiler_handler import BoilerHandler
@@ -51,7 +53,7 @@ class HeatingSupervisor(Worker):
         if self._start_heating_ts:
             end_ts = DT.now()
             self._heating_time_collector.add(self._start_heating_ts, end_ts)
-            self._db_handler.add_boiler_heating_time(self._start_heating_ts, end_ts)
+            self._db_handler.add_boiler_heating_time_raw(self._start_heating_ts, end_ts)
         logger.debug('Heating stopped.')
 
     def user_stop_heating(self):

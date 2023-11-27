@@ -2,12 +2,9 @@ import logging
 from datetime import datetime as DT
 from datetime import timedelta as TD
 from collections import defaultdict
+from utils import convert_timedelta_to_hours
 
 logger = logging.getLogger(__name__)
-
-
-def _convert_timedelta_to_hours(td):
-    return td.total_seconds() / 3600
 
 
 class HeatingTimeCollector:
@@ -23,7 +20,7 @@ class HeatingTimeCollector:
         self._maintain()
         logger.debug(f'Heating time collector: start_ts={start_ts}, end_ts={end_ts}.')
         if start_ts.day == end_ts.day:
-            self._heating_minutes_per_day[start_ts.date()] += _convert_timedelta_to_hours(end_ts - start_ts)
+            self._heating_minutes_per_day[start_ts.date()] += convert_timedelta_to_hours(end_ts - start_ts)
             return
         self.add(start_ts,
                  DT(
