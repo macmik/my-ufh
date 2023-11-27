@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 #DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ00:00'
 
+
 class DatabaseHandler:
     def __init__(self, config):
         self._write_lock = Lock()
