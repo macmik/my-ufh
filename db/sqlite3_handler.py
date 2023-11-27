@@ -56,12 +56,11 @@ class DatabaseHandler:
         if start_timestamp.day == end_timestamp.day:
             timestamp = _get_epoch(start_timestamp.date())
             heating_hours = convert_timedelta_to_hours(end_timestamp - start_timestamp)
-            query = f'SELECT timestamp, hours FROM {self.DB_HEATING_PER_DAY} WHERE timestamp={str(timestamp)}'
-            self._cur.execute(query)
+            query = f'SELECT timestamp, hours FROM {self.DB_HEATING_PER_DAY} WHERE timestamp = ? '
+            self._cur.execute(query, (timestamp, ))
             result = self._cur.fetchone()
             if not result:
-                self._cur.execute(f'INSERT INTO {self.DB_HEATING_PER_DAY} VALUES(?, ?)', [timestamp, heating_hours])
-                self._conn.commit()
+                self._cur.execute(f'INSERT INTO {self.DB_HEATING_PER_DAY} VALUES(?, ?)', (timestamp, heating_hours))
                 logger.debug('Added new heating time hours.')
             else:
                 logger.debug('Updating existing time hour row.')
@@ -69,8 +68,8 @@ class DatabaseHandler:
                 query = f'UPDATE {self.DB_HEATING_PER_DAY} SET hours = ? WHERE timestamp = ?'
                 values = (db_hours + heating_hours, timestamp)
                 self._cur.execute(query, values)
-                self._conn.commit()
                 logger.debug(f'Updated heating time hours for {start_timestamp}.')
+            self._conn.commit()
         else:
             logger.debug('Splitting date into two.')
             self.add_boiler_heating_time_hours(start_timestamp, DT(
