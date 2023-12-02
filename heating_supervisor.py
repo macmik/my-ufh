@@ -54,10 +54,7 @@ class HeatingSupervisor(Worker):
             end_ts = DT.now()
             self._heating_time_collector.add(self._start_heating_ts, end_ts)
             self._db_handler.add_boiler_heating_time_raw(self._start_heating_ts, end_ts)
-            try:
-                self._db_handler.add_boiler_heating_time_hours(self._start_heating_ts, end_ts)
-            except Exception as e:
-                logger.error(f'Test code error {str(e)}')
+            self._db_handler.add_boiler_heating_time_hours(self._start_heating_ts, end_ts)
         logger.debug('Heating stopped.')
 
     def user_stop_heating(self):
