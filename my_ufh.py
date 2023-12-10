@@ -105,6 +105,7 @@ def index():
         'humidity': outdoor_data_measurement.humidity,
         'pressure': outdoor_data_measurement.pressure,
         'battery': outdoor_data_measurement.battery,
+        'last_updated': outdoor_data_measurement.last_updated.strftime('%Y%m%d-%H:%M:%S'),
     }
     return render_template('index.html',
                            locations=state,
