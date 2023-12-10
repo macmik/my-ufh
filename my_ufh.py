@@ -11,6 +11,7 @@ from zone.zone import Zone
 from zone.controller import ZoneController
 from settings.worker import SettingsUpdaterWorker
 from slave.interface import SlaveInterface
+from slave.phoscon_interface import PhosconInterface
 from measurement_collector import MeasurementCollector
 from heating_supervisor import HeatingSupervisor
 from db.sqlite3_handler import DatabaseHandler
@@ -47,6 +48,9 @@ def create_app():
 
     db_handler = DatabaseHandler(config)
     slave_interfaces = {name: SlaveInterface(name, config) for name in config['slaves'].keys()}
+    slave_interfaces.update({
+        'phoscon': PhosconInterface('phoscon', config)
+    })
     settings_worker = SettingsUpdaterWorker(config, stop_event)
     measurement_collector = MeasurementCollector(config, stop_event, slave_interfaces.values(), db_handler)
     zones = [Zone(**zone_config) for zone_config in config['zones']]

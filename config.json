@@ -10,11 +10,27 @@
     "refresh_interval": 5
   },
   "db_path": "heating_data.db",
-  "boiler" : {
+  "boiler": {
     "ip": "127.0.0.1",
     "port": 8002,
     "relay_type": "high_enabled",
     "gpio": 3
+  },
+  "phoscon": {
+    "api_key": "F64BE2BAE2",
+    "ip": "192.168.68.117",
+    "port": 80,
+    "sensors": [
+      {
+        "name": "Outdoor sensor",
+        "type": "multi_sensor",
+        "available_data": [
+          "temperature",
+          "humidity",
+          "pressure"
+        ]
+      }
+    ]
   },
   "slaves": {
     "gora": {

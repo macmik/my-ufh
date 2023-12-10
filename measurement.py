@@ -1,3 +1,4 @@
+from typing import Optional
 from dataclasses import dataclass
 from datetime import datetime as DT
 
@@ -6,9 +7,11 @@ from datetime import datetime as DT
 class Measurement:
     mac: str
     last_updated: DT
-    battery: int
-    humidity: int
-    temperature: float
+    battery: Optional[int] = None
+    humidity: Optional[int] = None
+    temperature: Optional[float] = None
+    pressure: Optional[int] = None
+    presence: Optional[bool] = None
 
 
 def get_pre_initialized():

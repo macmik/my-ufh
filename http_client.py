@@ -9,7 +9,7 @@ class HttpClient:
         self._address = 'http://' + self._ip + ':' + str(self._port)
 
     def get_json(self, endpoint, params=None):
-        return self._session.get(self._address + '/' + endpoint, params=params, timeout=5.0).json()
+        return self._session.get('/'.join([self._address, endpoint]), params=params, timeout=5.0).json()
 
     def post(self, endpoint, params=None):
-        self._session.post(self._address + '/' + endpoint, params=params, timeout=5.0)
+        self._session.post('/'.join([self._address, endpoint]), params=params, timeout=5.0)
