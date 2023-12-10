@@ -11,6 +11,7 @@ from zone.zone import Zone
 from zone.controller import ZoneController
 from settings.worker import SettingsUpdaterWorker
 from slave.interface import SlaveInterface
+from slave.phoscon_interface import PhosconInterface
 from measurement_collector import MeasurementCollector
 from heating_supervisor import HeatingSupervisor
 from db.sqlite3_handler import DatabaseHandler
@@ -47,6 +48,9 @@ def create_app():
 
     db_handler = DatabaseHandler(config)
     slave_interfaces = {name: SlaveInterface(name, config) for name in config['slaves'].keys()}
+    slave_interfaces.update({
+        'phoscon': PhosconInterface('phoscon', config)
+    })
     settings_worker = SettingsUpdaterWorker(config, stop_event)
     measurement_collector = MeasurementCollector(config, stop_event, slave_interfaces.values(), db_handler)
     zones = [Zone(**zone_config) for zone_config in config['zones']]
@@ -63,9 +67,11 @@ def create_app():
     _ = [controller.start() for controller in zone_controllers]
     supervisor.start()
 
+    app.my_config = config
     app.zone_controllers = zone_controllers
     app.heating_supervisor = supervisor
     app.settings_worker = settings_worker
+    app.measurement_collector = measurement_collector
     return app
 
 
@@ -93,9 +99,18 @@ def index():
         'heating_enabled': app.heating_supervisor.get_user_heating_enabled(),
         'vacation_enabled': app.settings_worker.get_vacation_enabled(),
     }
+    outdoor_data_measurement = app.measurement_collector.get_measurements_by_mac(app.my_config['outdoor_measurement'])
+    outdoor_data = {
+        'temperature': outdoor_data_measurement.temperature,
+        'humidity': outdoor_data_measurement.humidity,
+        'pressure': outdoor_data_measurement.pressure,
+        'battery': outdoor_data_measurement.battery,
+        'last_updated': outdoor_data_measurement.last_updated.strftime('%Y%m%d-%H:%M:%S'),
+    }
     return render_template('index.html',
                            locations=state,
-                           settings=settings)
+                           settings=settings,
+                           outdoor_data=outdoor_data)
 
 
 @app.route('/heating_data')
