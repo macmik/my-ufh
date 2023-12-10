@@ -35,11 +35,11 @@ class Sensor:
                 if measurement_name in state:
                     measurements[measurement_name] = round(state[measurement_name] / DIVIDERS[measurement_name], 1)
             last_updated = _strptime(state['lastupdated'])
-            battery = data['config']['battery']
+            measurements['battery'] = data['config']['battery']
+
         logger.debug(f'Data collected for sensor {self._name}.')
         return {
             'last_updated': last_updated.strftime('%Y%m%d-%H%M%S.%f'),
-            'battery': battery,
             'measurement': measurements,
         }
 

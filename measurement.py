@@ -21,4 +21,6 @@ def get_pre_initialized():
         battery=-1,
         humidity=-1,
         temperature=-1,
+        presence=None,
+        pressure=-1,
     )

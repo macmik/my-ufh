@@ -4,7 +4,7 @@ from threading import Lock
 from datetime import datetime as DT
 
 from worker import Worker
-from measurement import Measurement
+from measurement import Measurement, get_pre_initialized
 
 logger = logging.getLogger(__name__)
 
@@ -51,4 +51,7 @@ class MeasurementCollector(Worker):
             return self._current_measurements_per_mac
 
     def get_measurements_by_mac(self, mac):
+        if mac not in self._current_measurements_per_mac:
+            logger.error(f'{mac} not found in measurements. Return preinitialized.')
+            return get_pre_initialized()
         return self._current_measurements_per_mac[mac]
