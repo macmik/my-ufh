@@ -1,5 +1,6 @@
 {
   "hysteresis": 0.2,
+  "outdoor_measurement": "Outdoor sensor",
   "supervisor": {
     "refresh_interval": 5
   },

@@ -27,6 +27,25 @@
     </tbody>
   </table>
   <hr>
+    <table id="outdoor-data" class="table table-striped">
+      <thead>
+        <th></th>
+        <th>Aktualna temperatura</th>
+        <th>Wilgotność</th>
+        <th>Ciśnienie</th>
+        <th>Stan baterii</th>
+    </thead>
+      <tbody>
+      <tr>
+        <td>Temperatura na zewnątrz</td>
+        <td>{{ outdoor_data.temperature }}</td>
+        <td>{{ outdoor_data.humidity }}</td>
+        <td>{{ outdoor_data.pressure }}</td>
+        <td>{{ outdoor_data.battery }}</td>
+      </tr>
+      </tbody>
+    </table>
+  <hr>
   <h2>Ustawienia</h2>
   <table id="settings" class="table table-striped">
     <thead>

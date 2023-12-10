@@ -67,9 +67,11 @@ def create_app():
     _ = [controller.start() for controller in zone_controllers]
     supervisor.start()
 
+    app.my_config = config
     app.zone_controllers = zone_controllers
     app.heating_supervisor = supervisor
     app.settings_worker = settings_worker
+    app.measurement_collector = measurement_collector
     return app
 
 
@@ -97,9 +99,17 @@ def index():
         'heating_enabled': app.heating_supervisor.get_user_heating_enabled(),
         'vacation_enabled': app.settings_worker.get_vacation_enabled(),
     }
+    outdoor_data_measurement = app.measurement_collector.get_measurements_by_mac(app.my_config['outdoor_measurement'])
+    outdoor_data = {
+        'temperature': outdoor_data_measurement.temperature,
+        'humidity': outdoor_data_measurement.humidity,
+        'pressure': outdoor_data_measurement.pressure,
+        'battery': outdoor_data_measurement.battery,
+    }
     return render_template('index.html',
                            locations=state,
-                           settings=settings)
+                           settings=settings,
+                           outdoor_data=outdoor_data)
 
 
 @app.route('/heating_data')
