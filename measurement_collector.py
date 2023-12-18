@@ -21,18 +21,17 @@ class MeasurementCollector(Worker):
 
     def _do(self):
         with self._lock:
-            self._current_measurements_per_mac = self._collect_measurements()
+            self._collect_measurements()
         logger.info('Measurements updated.')
         time.sleep(self._refresh_interval)
 
     def _collect_measurements(self):
-        measurements_per_mac = {}
         for interface in self._slave_interfaces:
             try:
                 for mac, data in interface.get_measurements().items():
                     last_updated = DT.strptime(data['last_updated'], '%Y%m%d-%H%M%S.%f')
-                    if mac in measurements_per_mac:
-                        if last_updated < measurements_per_mac[mac].last_updated:
+                    if mac in self._current_measurements_per_mac:
+                        if last_updated < self._current_measurements_per_mac[mac].last_updated:
                             logger.debug(f'{mac} newer ts already in measurements. Skipping')
                             continue
                     measurement = Measurement(
@@ -40,11 +39,10 @@ class MeasurementCollector(Worker):
                         last_updated=last_updated,
                         **data['measurement']
                     )
-                    measurements_per_mac[mac] = measurement
+                    self._current_measurements_per_mac.update({mac: measurement})
                     self._db_handler.add_measurement(measurement)
             except Exception as e:
                 logger.error(str(e))
-        return measurements_per_mac
 
     def get_measurements(self):
         with self._lock:

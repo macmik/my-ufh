@@ -54,10 +54,13 @@ class ZoneController(Worker):
     def _check(self):
         settings = self._settings_worker.get_settings()
         if not settings:
-            logging.debug(f'Settings are empty. Skipping')
+            self._logger.debug(f'Settings are empty. Skipping')
             return
         setting = settings.get_setting_by_id(self._zone.id)
         measurement = self._measurement_collector.get_measurements_by_mac(self._zone.mac)
+        if measurement.mac != self._zone.mac:
+            self._logger.debug(f'Not measurement for zone {self._zone.name}. Waiting.')
+            return
         self._check_temperature(measurement, setting)
         self._latest_measurement = measurement
 
