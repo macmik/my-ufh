@@ -18,9 +18,9 @@ def get_pre_initialized():
     return Measurement(
         mac='None',
         last_updated=DT.utcnow(),
-        battery=-1,
-        humidity=-1,
-        temperature=-1,
+        battery=None,
+        humidity=None,
+        temperature=None,
         presence=None,
-        pressure=-1,
+        pressure=None,
     )
