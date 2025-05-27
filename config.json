@@ -104,5 +104,10 @@
       "gpio": 7,
       "slave": "dol"
     }
-  ]
+  ],
+  "cesspool": {
+    "ip": "192.168.68.111",
+    "port": 8000,
+    "refresh_interval": 5
+  }
 }

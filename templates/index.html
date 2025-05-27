@@ -48,6 +48,24 @@
       </tbody>
     </table>
   <hr>
+  <hr>
+    <table id="cesspool-data" class="table table-striped">
+      <thead>
+        <th></th>
+        <th>Poziom [mm]</th>
+        <th>Poziom [%]</th>
+        <th>Ostatnia aktualizacja</th>
+    </thead>
+      <tbody>
+      <tr>
+        <td>Poziom napełniania zbiornika </td>
+        <td>{{ cesspool_data.distance_mm }}</td>
+        <td>{{ cesspool_data.level_percent }}</td>
+        <td>{{ cesspool_data.last_updated }}</td>
+      </tr>
+      </tbody>
+    </table>
+  <hr>
   <h2>Ustawienia</h2>
   <table id="settings" class="table table-striped">
     <thead>

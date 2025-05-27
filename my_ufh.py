@@ -14,6 +14,7 @@ from slave.interface import SlaveInterface
 from slave.phoscon_interface import PhosconInterface
 from measurement_collector import MeasurementCollector
 from heating_supervisor import HeatingSupervisor
+from cesspool.data_collector import CesspoolDataCollector
 from db.sqlite3_handler import DatabaseHandler
 
 
@@ -61,17 +62,20 @@ def create_app():
                                        measurement_collector,
                                        slave_interfaces[zone.slave]) for zone in zones]
     supervisor = HeatingSupervisor(config, stop_event, zone_controllers, db_handler)
+    cesspool_data_collector = CesspoolDataCollector(config, stop_event, db_handler)
 
     settings_worker.start()
     measurement_collector.start()
     _ = [controller.start() for controller in zone_controllers]
     supervisor.start()
+    cesspool_data_collector.start()
 
     app.my_config = config
     app.zone_controllers = zone_controllers
     app.heating_supervisor = supervisor
     app.settings_worker = settings_worker
     app.measurement_collector = measurement_collector
+    app.cesspool_data_collector = cesspool_data_collector
     return app
 
 
@@ -107,10 +111,22 @@ def index():
         'battery': outdoor_data_measurement.battery,
         'last_updated': outdoor_data_measurement.last_updated.strftime('%Y%m%d-%H:%M:%S'),
     }
+    cesspool_data_measurement = app.cesspool_data_collector.get_last_data()
+    cesspool_data = {
+        'distance_mm': cesspool_data_measurement.distance_mm,
+        'level_percent': cesspool_data_measurement.level_percent,
+        'last_updated': (
+            cesspool_data_measurement.last_updated.strftime('%Y%m%d-%H:%M:%S')
+            if cesspool_data_measurement.last_updated
+            else None
+        )
+    }
+
     return render_template('index.html',
                            locations=state,
                            settings=settings,
-                           outdoor_data=outdoor_data)
+                           outdoor_data=outdoor_data,
+                           cesspool_data=cesspool_data)
 
 
 @app.route('/heating_data')
