@@ -32,8 +32,7 @@ class CesspoolDataCollector(Worker):
         )
 
     def _do(self):
-        with self._lock:
-            self._collect_data()
+        self._collect_data()
         logger.info('Cesspool data updated.')
         time.sleep(self._refresh_interval)
 
@@ -43,7 +42,7 @@ class CesspoolDataCollector(Worker):
             self._last_data = CesspoolData(
                 distance_mm=state['distance_mm'],
                 level_percent=state['level_percent'],
-                last_updated=DT.strptime(state['timestamp'], '%Y%m%d-%H%M%S') if state['timestamp'] is not None else None
+                last_updated=DT.strptime(state['timestamp'], '%Y%m%d-%H:%M:%S') if state['timestamp'] is not None else None
             )
 
     def get_last_data(self):
