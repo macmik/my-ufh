@@ -12,7 +12,6 @@ DIVIDERS = {
 
 
 def _strptime(ts):
-    print(ts)
     return DT.strptime(ts, '%Y-%m-%dT%H:%M:%S.%f')
 
 
