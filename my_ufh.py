@@ -5,7 +5,7 @@ from os import environ
 from pathlib import Path
 from threading import Event
 
-from flask import Flask, render_template, jsonify, redirect
+from flask import Flask, render_template, jsonify, redirect, request
 
 from zone.zone import Zone
 from zone.controller import ZoneController
@@ -139,6 +139,20 @@ def heating_data():
                            labels=labels,
                            values=list(heating_time_data.values()))
 
+
+@app.route('/temp_settings')
+def temp_settings():
+    return render_template('temp_settings.html')
+
+
+@app.route('/settings.json', methods=['GET', 'POST'])
+def settings():
+    if request.method == 'GET':
+        return Path('data/settings.json').read_text()
+    if request.method == 'POST':
+        Path('data/settings.json').write_text(json.dumps(request.get_json(), indent=4))
+        return 'ok'
+    return 404, 'not ok'
 
 @app.route('/enable_heating')
 def enable_heating():
