@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row gy-4">
+  <!-- Ustawienia Temperatur -->
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-info text-white d-flex align-items-center">
+        <i class="bi bi-sliders me-2"></i> Ustawienia Temperatur
+      </div>
+      <div class="card-body">
+        <form id="temp-settings-form">
+          <div id="sections-container"></div>
+          <button type="submit" class="btn btn-primary mt-3">Ustaw</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function loadSettings() {
+  const response = await fetch('/settings.json');
+  const data = await response.json();
+  const container = document.getElementById('sections-container');
+  container.innerHTML = '';
+
+  for (const [section, values] of Object.entries(data)) {
+    const sectionDiv = document.createElement('div');
+    sectionDiv.className = 'border rounded p-3 mb-3';
+
+    sectionDiv.innerHTML = `
+      <h5>${section}</h5>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label>Dzień - Temperatura</label>
+          <input type="number" step="0.1" name="${section}[day][temperature]" value="${values.day.temperature}" class="form-control">
+        </div>
+        <div class="col-md-3">
+          <label>Dzień - Godzina</label>
+          <input type="number" min="0" max="23" name="${section}[day][hour]" value="${values.day.hour}" class="form-control">
+        </div>
+        <div class="col-md-3">
+          <label>Dzień - Minuta</label>
+          <input type="number" min="0" max="59" name="${section}[day][minute]" value="${values.day.minute}" class="form-control">
+        </div>
+      </div>
+      <div class="row g-3 mt-2">
+        <div class="col-md-6">
+          <label>Noc - Temperatura</label>
+          <input type="number" step="0.1" name="${section}[night][temperature]" value="${values.night.temperature}" class="form-control">
+        </div>
+        <div class="col-md-3">
+          <label>Noc - Godzina</label>
+          <input type="number" min="0" max="23" name="${section}[night][hour]" value="${values.night.hour}" class="form-control">
+        </div>
+        <div class="col-md-3">
+          <label>Noc - Minuta</label>
+          <input type="number" min="0" max="59" name="${section}[night][minute]" value="${values.night.minute}" class="form-control">
+        </div>
+      </div>
+    `;
+
+    container.appendChild(sectionDiv);
+  }
+}
+
+// Obsługa wysyłki formularza
+const form = document.getElementById('temp-settings-form');
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const formData = new FormData(form);
+  const settings = {};
+
+  for (const [key, value] of formData.entries()) {
+    const match = key.match(/^(.*?)\[(day|night)]\[(.*?)\]$/);
+    if (match) {
+      const section = match[1];
+      const period = match[2];
+      const field = match[3];
+
+      if (!settings[section]) settings[section] = { day: {}, night: {} };
+      settings[section][period][field] = isNaN(value) ? value : parseFloat(value);
+    }
+  }
+
+  await fetch('/settings.json', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(settings, null, 2)
+  });
+
+  alert('Ustawienia zapisane!');
+});
+
+// Załaduj przy starcie
+document.addEventListener('DOMContentLoaded', loadSettings);
+</script>
+{% endblock %}
