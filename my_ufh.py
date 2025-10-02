@@ -144,6 +144,14 @@ def heating_data():
 def temp_settings():
     return render_template('temp_settings.html')
 
+@app.route("/tank_chart")
+def tank_chart():
+    tank_data_history = app.cesspool_data_collector.get_history()
+    tank_data = [
+        (cesspool_data.last_updated.strftime('%Y%m%d-%H:%M:%S'), cesspool_data.distance_mm)
+        for cesspool_data in tank_data_history
+    ]
+    return render_template("tank_chart.html", tank_data=tank_data)
 
 @app.route('/settings.json', methods=['GET', 'POST'])
 def settings():

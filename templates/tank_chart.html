@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row gy-4">
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-warning text-dark d-flex align-items-center">
+        <i class="bi bi-graph-up me-2"></i> Historia wypełnienia zbiornika
+      </div>
+      <div class="card-body">
+        <canvas id="tankChart" height="120"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const rawData = {{ tank_data|tojson }};
+    const labels = rawData.map(item => item[0]); // timestamp
+    const values = rawData.map(item => item[1]); // poziom mm
+
+    const ctx = document.getElementById('tankChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Poziom zbiornika [mm]',
+          data: values,
+          borderWidth: 2,
+          fill: false,
+          tension: 0.2
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: {
+            title: { display: true, text: 'Czas' }
+          },
+          y: {
+            reverse: true, // mniejszy poziom mm to pełniejszy zbiornik
+            title: { display: true, text: 'Poziom [mm]' }
+          }
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}
