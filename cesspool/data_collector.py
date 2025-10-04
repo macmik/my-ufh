@@ -30,6 +30,7 @@ class CesspoolDataCollector(Worker):
         self._history = []
         self._history_keep_time_days = TD(days=self._config['cesspool']['history_keep_time_days'])
         self._history_save_interval_mins = TD(minutes=self._config['cesspool']['history_save_interval_mins'])
+        self._drop_measurement_diff_mm = self._config['cesspool']['drop_measurement_diff_mm']
         self._cesspool_client = HttpClient(
             ip=self._config['cesspool']['ip'],
             port=self._config['cesspool']['port']
@@ -72,6 +73,11 @@ class CesspoolDataCollector(Worker):
         last_element = self._history[-1]
 
         if cesspool_data.last_updated - last_element.last_updated > self._history_save_interval_mins:
+            distance_diff = last_element.distance_mm - cesspool_data.distance_mm
+            if distance_diff > self._drop_measurement_diff_mm:
+                logger.debug(f'Found strange measurement for cesspool. Last distance {last_element.distance_mm}, '
+                             f'current {cesspool_data.distance_mm}. Difference {distance_diff}. Skipping.')
+                return
             self._history.append(cesspool_data)
 
     def get_last_data(self):
