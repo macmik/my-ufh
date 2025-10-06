@@ -110,6 +110,7 @@
     "port": 8000,
     "refresh_interval": 5,
     "history_keep_time_days": 30,
-    "history_save_interval_mins": 10
+    "history_save_interval_mins": 10,
+    "drop_measurement_diff_mm": 100
   }
 }
