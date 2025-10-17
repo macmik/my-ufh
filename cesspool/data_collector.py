@@ -6,7 +6,6 @@ from datetime import datetime as DT
 from datetime import timedelta as TD
 from typing import Optional
 
-
 from worker import Worker
 from http_client import HttpClient
 
@@ -17,7 +16,7 @@ logger = logging.getLogger(__name__)
 class CesspoolData:
     distance_mm: int
     level_percent: int
-    last_updated: DT
+    last_updated: Optional[DT]
 
 
 class CesspoolDataCollector(Worker):
@@ -84,7 +83,8 @@ class CesspoolDataCollector(Worker):
 
     def get_last_data(self):
         with self._lock:
-            return self._history[-1] if self._history else None
+            return self._history[-1] if self._history else CesspoolData(distance_mm=0, level_percent=0,
+                                                                        last_updated=None)
 
     def get_history(self):
         return self._history
