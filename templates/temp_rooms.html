@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h1 class="mb-4">Temperatury pomieszczeń</h1>
+
+  <div class="mb-3">
+    <h4>Wybierz strefy:</h4>
+    {% for zone in data.keys() %}
+      <div class="form-check form-switch">
+        <input class="form-check-input zone-toggle" type="checkbox" id="switch-{{ loop.index }}" data-zone="{{ zone }}" checked>
+        <label class="form-check-label" for="switch-{{ loop.index }}">{{ zone }}</label>
+      </div>
+    {% endfor %}
+  </div>
+
+  <canvas id="tempChart" height="100"></canvas>
+</div>
+
+<!-- 🔧 DODAJ TE DWA SKRYPTY -->
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.1/dist/chartjs-adapter-moment.min.js"></script>
+
+<script>
+  const chartData = {{ data | tojson }};
+
+  const ctx = document.getElementById('tempChart').getContext('2d');
+  const zoneNames = Object.keys(chartData);
+
+  const datasets = zoneNames.map((zone, i) => ({
+    label: zone,
+    data: chartData[zone].map(([t, val]) => ({x: t, y: val})),
+    borderColor: `hsl(${i * 70}, 70%, 50%)`,
+    fill: false,
+    tension: 0.3,
+  }));
+
+  const chart = new Chart(ctx, {
+    type: 'line',
+    data: { datasets },
+    options: {
+      responsive: true,
+      interaction: { mode: 'nearest', intersect: false },
+      scales: {
+        x: {
+          type: 'time',
+          time: {
+            parser: 'YYYY-MM-DD HH:mm',
+            tooltipFormat: 'HH:mm',
+            unit: 'hour',
+            displayFormats: { hour: 'HH:mm' }
+          },
+          title: { display: true, text: 'Czas' }
+        },
+        y: {
+          title: { display: true, text: 'Temperatura (°C)' }
+        }
+      }
+    }
+  });
+
+  document.querySelectorAll('.zone-toggle').forEach(toggle => {
+    toggle.addEventListener('change', (e) => {
+      const zone = e.target.dataset.zone;
+      const dsIndex = chart.data.datasets.findIndex(ds => ds.label === zone);
+      chart.data.datasets[dsIndex].hidden = !e.target.checked;
+      chart.update();
+    });
+  });
+</script>
+{% endblock %}
