@@ -10,6 +10,7 @@ from flask import Flask, render_template, jsonify, redirect, request
 from zone.zone import Zone
 from zone.controller import ZoneController
 from data_agreggator import DataAggregator
+from heating.manager import HeatingManager
 from settings.worker import SettingsUpdaterWorker
 from slave.interface import SlaveInterface
 from slave.phoscon_interface import PhosconInterface
@@ -65,6 +66,7 @@ def create_app():
     supervisor = HeatingSupervisor(config, stop_event, zone_controllers, db_handler)
     cesspool_data_collector = CesspoolDataCollector(config, stop_event, db_handler)
     data_aggregator = DataAggregator(config, stop_event, zone_controllers)
+    heating_manager = HeatingManager(config, stop_event, data_aggregator, zone_controllers)
 
     settings_worker.start()
     measurement_collector.start()
@@ -72,6 +74,7 @@ def create_app():
     supervisor.start()
     cesspool_data_collector.start()
     data_aggregator.start()
+    heating_manager.start()
 
     app.my_config = config
     app.zone_controllers = zone_controllers
