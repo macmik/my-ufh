@@ -1,3 +1,4 @@
+import measurement
 import sys
 import json
 import logging
@@ -9,6 +10,7 @@ from flask import Flask, render_template, jsonify, redirect, request
 
 from zone.zone import Zone
 from zone.controller import ZoneController
+from data_agreggator import DataAggregator
 from settings.worker import SettingsUpdaterWorker
 from slave.interface import SlaveInterface
 from slave.phoscon_interface import PhosconInterface
@@ -63,12 +65,14 @@ def create_app():
                                        slave_interfaces[zone.slave]) for zone in zones]
     supervisor = HeatingSupervisor(config, stop_event, zone_controllers, db_handler)
     cesspool_data_collector = CesspoolDataCollector(config, stop_event, db_handler)
+    data_aggregator = DataAggregator(config, stop_event, zone_controllers)
 
     settings_worker.start()
     measurement_collector.start()
     _ = [controller.start() for controller in zone_controllers]
     supervisor.start()
     cesspool_data_collector.start()
+    data_aggregator.start()
 
     app.my_config = config
     app.zone_controllers = zone_controllers
@@ -76,6 +80,7 @@ def create_app():
     app.settings_worker = settings_worker
     app.measurement_collector = measurement_collector
     app.cesspool_data_collector = cesspool_data_collector
+    app.data_aggregator = data_aggregator
     return app
 
 
@@ -144,6 +149,7 @@ def heating_data():
 def temp_settings():
     return render_template('temp_settings.html')
 
+
 @app.route("/tank_chart")
 def tank_chart():
     tank_data_history = app.cesspool_data_collector.get_history()
@@ -153,6 +159,38 @@ def tank_chart():
     ]
     return render_template("tank_chart.html", tank_data=tank_data)
 
+
+@app.route("/temp_rooms")
+def temp_rooms():
+    # Przykładowe dane (normalnie wczytywane np. z bazy danych lub pliku)
+    # data = {
+    #     "Salon": [
+    #         ("2025-10-17 10:00", 22.3),
+    #         ("2025-10-17 11:00", 22.5),
+    #         ("2025-10-17 12:00", 22.8),
+    #     ],
+    #     "Sypialnia": [
+    #         ("2025-10-17 10:00", 21.1),
+    #         ("2025-10-17 11:00", 21.3),
+    #         ("2025-10-17 12:00", 21.0),
+    #     ],
+    #     "Kuchnia": [
+    #         ("2025-10-17 10:00", 23.0),
+    #         ("2025-10-17 11:00", 23.4),
+    #         ("2025-10-17 12:00", 23.1),
+    #     ],
+    # }
+
+    zone_measurements = app.data_aggregator.get_zone_measurements()
+
+    data = {}
+    for zone_name, container in zone_measurements.items():
+        data[zone_name] = [(measurement.last_updated.strftime('%Y%m%d %H:%M:%S'), measurement.temperature) for measurement in
+                           container.get_measurements()]
+
+    return render_template("temp_rooms.html", title="Temperatury pomieszczeń", data=data)
+
+
 @app.route('/settings.json', methods=['GET', 'POST'])
 def settings():
     if request.method == 'GET':
@@ -161,6 +199,7 @@ def settings():
         Path('data/settings.json').write_text(json.dumps(request.get_json(), indent=4))
         return 'ok'
     return 404, 'not ok'
+
 
 @app.route('/enable_heating')
 def enable_heating():

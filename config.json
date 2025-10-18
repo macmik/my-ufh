@@ -10,6 +10,10 @@
   "measurement_collector": {
     "refresh_interval": 5
   },
+  "data_aggregator": {
+    "refresh_interval_sec": 60,
+    "keep_data_time_days": 5
+  },
   "db_path": "heating_data.db",
   "boiler": {
     "ip": "127.0.0.1",
