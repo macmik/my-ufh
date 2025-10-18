@@ -1,4 +1,3 @@
-import measurement
 import sys
 import json
 import logging
@@ -162,27 +161,7 @@ def tank_chart():
 
 @app.route("/temp_rooms")
 def temp_rooms():
-    # Przykładowe dane (normalnie wczytywane np. z bazy danych lub pliku)
-    # data = {
-    #     "Salon": [
-    #         ("2025-10-17 10:00", 22.3),
-    #         ("2025-10-17 11:00", 22.5),
-    #         ("2025-10-17 12:00", 22.8),
-    #     ],
-    #     "Sypialnia": [
-    #         ("2025-10-17 10:00", 21.1),
-    #         ("2025-10-17 11:00", 21.3),
-    #         ("2025-10-17 12:00", 21.0),
-    #     ],
-    #     "Kuchnia": [
-    #         ("2025-10-17 10:00", 23.0),
-    #         ("2025-10-17 11:00", 23.4),
-    #         ("2025-10-17 12:00", 23.1),
-    #     ],
-    # }
-
     zone_measurements = app.data_aggregator.get_zone_measurements()
-
     data = {}
     for zone_name, container in zone_measurements.items():
         data[zone_name] = [(measurement.last_updated.strftime('%Y%m%d %H:%M:%S'), measurement.temperature) for measurement in
