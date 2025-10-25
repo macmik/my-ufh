@@ -23,9 +23,11 @@ class HeatingManager(Worker):
         self._logger.info(f'Found zones to start heating {str(zones_to_start_heating)}.')
 
         for zone_name in zones_to_start_heating:
-            for zone_ctrl in zone_name:
+            for zone_ctrl in self._zone_controllers:
+                if zone_ctrl.is_heating_required():
+                    continue
                 if zone_ctrl.get_zone_name() == zone_name:
-                    self._logger.info(f'Staring to heat {zone_name}.')
+                    self._logger.info(f'Starting to heat {zone_name}.')
                     zone_ctrl.enable_heat()
 
         time.sleep(self._refresh_interval)

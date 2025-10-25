@@ -25,13 +25,15 @@ class EnableWhenDecreasing:
             self._logger.info('No heating needed. Returning.')
             return []
 
+        not_heating_zones_names = [zone_ctrl.get_zone_name() for zone_ctrl in self._zone_controllers if not
+        zone_ctrl.is_heating_required()]
+
         zone_measurements = self._data_aggregator.get_zone_measurements()
 
         zones_names_to_start_heating = [self._check_zone(name, measurement_container) for name, measurement_container
-                                        in zone_measurements.items()]
+                                        in zone_measurements.items() if name in not_heating_zones_names]
 
         return [zone_name for zone_name in zones_names_to_start_heating if zone_name is not None]
-
 
     def _check_zone(self, name, measurements_container):
         measurements_history = measurements_container.get_measurements()
