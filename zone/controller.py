@@ -87,7 +87,7 @@ class ZoneController(Worker):
     def _check_heating(self, current_temperature, temperature_required):
         if current_temperature < temperature_required - self._config['hysteresis']:
             self.enable_heat()
-        elif current_temperature >= temperature_required + self._config['hysteresis']:
+        elif current_temperature >= temperature_required + (self._config['hysteresis'] - 1):
             self.disable_heat()
 
     def enable_heat(self):

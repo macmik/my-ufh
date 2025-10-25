@@ -26,7 +26,7 @@ class ZoneMeasurementsContainer:
 
     def _maintain_queue(self):
         filtered_measurements = []
-        current_timestamp = DT.utcnow()
+        current_timestamp = DT.now()
         for measurement in self._measurements:
             if current_timestamp - measurement.last_updated > self._max_time_delta_days:
                 continue

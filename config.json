@@ -14,6 +14,12 @@
     "refresh_interval_sec": 60,
     "keep_data_time_days": 5
   },
+  "heating_manager": {
+    "refresh_interval_sec": 60
+  },
+  "enable_when_decreasing": {
+    "check_prev_temp_time_minutes": 60
+  },
   "db_path": "heating_data.db",
   "boiler": {
     "ip": "127.0.0.1",
@@ -74,8 +80,8 @@
       "slave": "gora"
     },
     {
-      "id": "pokoj_pusty",
-      "name": "Pokoj pusty",
+      "id": "pokoj_poldusia",
+      "name": "Pokoj Poldusia",
       "mac": "A4:C1:38:24:54:C9",
       "gpio": 5,
       "slave": "gora"
