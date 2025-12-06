@@ -28,6 +28,7 @@ class CesspoolDataCollector(Worker):
         self._history = []
         self._history_keep_time_days = TD(days=self._config['cesspool']['history_keep_time_days'])
         self._history_save_interval_mins = TD(minutes=self._config['cesspool']['history_save_interval_mins'])
+        self._refresh_force_after_mins = TD(minutes=self._config['cesspool']['refresh_force_after_mins'])
         self._drop_measurement_diff_mm = self._config['cesspool']['drop_measurement_diff_mm']
         self._cesspool_client = HttpClient(
             ip=self._config['cesspool']['ip'],
@@ -70,6 +71,11 @@ class CesspoolDataCollector(Worker):
             return
 
         last_element = self._history[-1]
+
+        if cesspool_data.last_updated - last_element.last_updated > self._refresh_force_after_mins:
+            logger.debug('Force update cesspool data.')
+            self._history.append(cesspool_data)
+            return
 
         if cesspool_data.last_updated - last_element.last_updated > self._history_save_interval_mins:
             distance_diff = last_element.distance_mm - cesspool_data.distance_mm
