@@ -119,8 +119,9 @@
     "ip": "192.168.68.111",
     "port": 8000,
     "refresh_interval": 5,
+    "refresh_force_after_mins": 600,
     "history_keep_time_days": 30,
     "history_save_interval_mins": 10,
-    "drop_measurement_diff_mm": 100
+    "drop_measurement_diff_mm": 100,
   }
 }
