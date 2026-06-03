@@ -1,6 +1,9 @@
 {
   "hysteresis": 0.2,
   "outdoor_measurement": "Outdoor sensor",
+  "status_page": {
+    "stale_data_threshold_days": 1
+  },
   "supervisor": {
     "refresh_interval": 5
   },
