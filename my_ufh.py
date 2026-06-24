@@ -4,6 +4,8 @@ import logging
 from os import environ
 from pathlib import Path
 from threading import Event
+from datetime import datetime as DT
+from datetime import timedelta as TD
 
 from flask import Flask, render_template, jsonify, redirect, request
 
@@ -77,6 +79,8 @@ def create_app():
     heating_manager.start()
 
     app.my_config = config
+    stale_days = config.get('status_page', {}).get('stale_data_threshold_days', 1)
+    app.stale_data_threshold = TD(days=stale_days)
     app.zone_controllers = zone_controllers
     app.heating_supervisor = supervisor
     app.settings_worker = settings_worker
@@ -89,6 +93,12 @@ def create_app():
 app = create_app()
 
 
+def is_data_stale(last_updated):
+    if last_updated is None:
+        return True
+    return DT.now() - last_updated > app.stale_data_threshold
+
+
 @app.route('/')
 def index():
     state = []
@@ -96,10 +106,12 @@ def index():
         try:
             last_measurement = zone_ctrl.get_last_measurement()
             heating_started_ts = zone_ctrl.get_heating_started_ts()
+            is_stale = is_data_stale(last_measurement.last_updated)
             state.append({
                 'name': zone_ctrl.get_zone_name(),
                 'temperature': last_measurement.temperature,
                 'last_update': last_measurement.last_updated.strftime('%Y%m%d-%H:%M:%S'),
+                'is_stale': is_stale,
                 'required_temperature': zone_ctrl.get_required_temperature(),
                 'heating': zone_ctrl.is_heating_required(),
                 'heating_started': heating_started_ts.strftime('%Y%m%d-%H:%M:%S') if heating_started_ts else None,
@@ -111,14 +123,17 @@ def index():
         'vacation_enabled': app.settings_worker.get_vacation_enabled(),
     }
     outdoor_data_measurement = app.measurement_collector.get_measurements_by_mac(app.my_config['outdoor_measurement'])
+    outdoor_is_stale = is_data_stale(outdoor_data_measurement.last_updated)
     outdoor_data = {
         'temperature': outdoor_data_measurement.temperature,
         'humidity': outdoor_data_measurement.humidity,
         'pressure': outdoor_data_measurement.pressure,
         'battery': outdoor_data_measurement.battery,
         'last_updated': outdoor_data_measurement.last_updated.strftime('%Y%m%d-%H:%M:%S'),
+        'is_stale': outdoor_is_stale,
     }
     cesspool_data_measurement = app.cesspool_data_collector.get_last_data()
+    cesspool_is_stale = is_data_stale(cesspool_data_measurement.last_updated)
     cesspool_data = {
         'distance_mm': cesspool_data_measurement.distance_mm,
         'level_percent': cesspool_data_measurement.level_percent,
@@ -126,7 +141,8 @@ def index():
             cesspool_data_measurement.last_updated.strftime('%Y%m%d-%H:%M:%S')
             if cesspool_data_measurement.last_updated
             else None
-        )
+        ),
+        'is_stale': cesspool_is_stale,
     }
 
     return render_template('index.html',
