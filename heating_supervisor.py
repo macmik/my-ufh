@@ -1,5 +1,7 @@
+import json
 import time
 import logging
+from pathlib import Path
 from threading import Event
 from datetime import datetime as DT
 from datetime import timedelta as TD
@@ -10,6 +12,8 @@ from boiler_handler import BoilerHandler
 from heating_time_collector import HeatingTimeCollector
 
 logger = logging.getLogger(__name__)
+
+USER_HEATING_STATE_PATH = Path('data/user_heating_state.json')
 
 
 class HeatingSupervisor(Worker):
@@ -24,7 +28,8 @@ class HeatingSupervisor(Worker):
         self._start_heating_ts = None
         self._stop_heating()
         self._heating_event = Event()
-        self._heating_event.set()
+        if self._load_user_heating_state():
+            self._heating_event.set()
 
     def _do(self):
         if not self._heating_event.is_set():
@@ -60,10 +65,33 @@ class HeatingSupervisor(Worker):
     def user_stop_heating(self):
         logger.debug('User requested disable heating.')
         self._heating_event.clear()
+        self._save_user_heating_state(False)
 
     def user_start_heating(self):
         logger.debug('User requested enable heating.')
         self._heating_event.set()
+        self._save_user_heating_state(True)
+
+    @staticmethod
+    def _load_user_heating_state():
+        if not USER_HEATING_STATE_PATH.exists():
+            return True
+        try:
+            data = json.loads(USER_HEATING_STATE_PATH.read_text())
+            return bool(data.get('heating_enabled', True))
+        except (json.JSONDecodeError, OSError) as e:
+            logger.warning('Could not load user heating state, defaulting to enabled: %s', e)
+            return True
+
+    @staticmethod
+    def _save_user_heating_state(enabled):
+        try:
+            USER_HEATING_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+            USER_HEATING_STATE_PATH.write_text(
+                json.dumps({'heating_enabled': enabled}, indent=4)
+            )
+        except OSError as e:
+            logger.error('Could not save user heating state: %s', e)
 
     def get_user_heating_enabled(self):
         return self._heating_event.is_set()
