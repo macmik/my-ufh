@@ -5,7 +5,7 @@ from os import environ
 from pathlib import Path
 from threading import Event
 
-from flask import Flask, render_template, jsonify, redirect, request
+from flask import Flask
 
 from zone.zone import Zone
 from zone.controller import ZoneController
@@ -18,6 +18,7 @@ from measurement_collector import MeasurementCollector
 from heating_supervisor import HeatingSupervisor
 from cesspool.data_collector import CesspoolDataCollector
 from db.sqlite3_handler import DatabaseHandler
+from routes import routes
 
 
 def setup_logging():
@@ -83,138 +84,13 @@ def create_app():
     app.measurement_collector = measurement_collector
     app.cesspool_data_collector = cesspool_data_collector
     app.data_aggregator = data_aggregator
+
+    app.register_blueprint(routes)
+
     return app
 
 
 app = create_app()
-
-
-@app.route('/')
-def index():
-    state = []
-    for zone_ctrl in app.zone_controllers:
-        try:
-            last_measurement = zone_ctrl.get_last_measurement()
-            heating_started_ts = zone_ctrl.get_heating_started_ts()
-            state.append({
-                'name': zone_ctrl.get_zone_name(),
-                'temperature': last_measurement.temperature,
-                'last_update': last_measurement.last_updated.strftime('%Y%m%d-%H:%M:%S'),
-                'required_temperature': zone_ctrl.get_required_temperature(),
-                'heating': zone_ctrl.is_heating_required(),
-                'heating_started': heating_started_ts.strftime('%Y%m%d-%H:%M:%S') if heating_started_ts else None,
-            })
-        except Exception as e:
-            logging.error(e)
-    settings = {
-        'heating_enabled': app.heating_supervisor.get_user_heating_enabled(),
-        'vacation_enabled': app.settings_worker.get_vacation_enabled(),
-    }
-    outdoor_data_measurement = app.measurement_collector.get_measurements_by_mac(app.my_config['outdoor_measurement'])
-    outdoor_data = {
-        'temperature': outdoor_data_measurement.temperature,
-        'humidity': outdoor_data_measurement.humidity,
-        'pressure': outdoor_data_measurement.pressure,
-        'battery': outdoor_data_measurement.battery,
-        'last_updated': outdoor_data_measurement.last_updated.strftime('%Y%m%d-%H:%M:%S'),
-    }
-    cesspool_data_measurement = app.cesspool_data_collector.get_last_data()
-    cesspool_data = {
-        'distance_mm': cesspool_data_measurement.distance_mm,
-        'level_percent': cesspool_data_measurement.level_percent,
-        'last_updated': (
-            cesspool_data_measurement.last_updated.strftime('%Y%m%d-%H:%M:%S')
-            if cesspool_data_measurement.last_updated
-            else None
-        )
-    }
-
-    return render_template('index.html',
-                           locations=state,
-                           settings=settings,
-                           outdoor_data=outdoor_data,
-                           cesspool_data=cesspool_data)
-
-
-@app.route('/heating_data')
-def heating_data():
-    heating_time_collector = app.heating_supervisor.get_heating_time_collector()
-    heating_time_data = heating_time_collector.get_heating_minutes_per_day()
-    labels = [day.strftime('%Y-%m-%d') for day in heating_time_data]
-
-    return render_template('heating.html',
-                           labels=labels,
-                           values=list(heating_time_data.values()))
-
-
-@app.route('/temp_settings')
-def temp_settings():
-    return render_template('temp_settings.html')
-
-
-@app.route("/tank_chart")
-def tank_chart():
-    tank_data_history = app.cesspool_data_collector.get_history()
-    tank_data = [
-        (cesspool_data.last_updated.strftime('%Y%m%d-%H:%M:%S'), cesspool_data.distance_mm)
-        for cesspool_data in tank_data_history
-    ]
-    return render_template("tank_chart.html", tank_data=tank_data)
-
-
-@app.route("/temp_rooms")
-def temp_rooms():
-    zone_measurements = app.data_aggregator.get_zone_measurements()
-    data = {}
-    for zone_name, container in zone_measurements.items():
-        data[zone_name] = [(measurement.last_updated.strftime('%Y%m%d %H:%M:%S'), measurement.temperature) for measurement in
-                           container.get_measurements()]
-
-    return render_template("temp_rooms.html", title="Temperatury pomieszczeń", data=data)
-
-
-@app.route('/settings.json', methods=['GET', 'POST'])
-def settings():
-    if request.method == 'GET':
-        return Path('data/settings.json').read_text()
-    if request.method == 'POST':
-        Path('data/settings.json').write_text(json.dumps(request.get_json(), indent=4))
-        return 'ok'
-    return 404, 'not ok'
-
-
-@app.route('/enable_heating')
-def enable_heating():
-    app.heating_supervisor.user_start_heating()
-    return redirect('/')
-
-
-@app.route('/disable_heating')
-def disable_heating():
-    app.heating_supervisor.user_stop_heating()
-    return redirect('/')
-
-
-@app.route('/set_vacation_settings')
-def set_vacation_settings():
-    app.settings_worker.set_vacation_settings()
-    return redirect('/')
-
-
-@app.route('/set_standard_settings')
-def set_standard_settings():
-    app.settings_worker.set_standard_settings()
-    return redirect('/')
-
-
-@app.route('/get_status')
-def get_status():
-    return jsonify(
-        {
-            'vacation_mode_enabled': app.settings_worker.get_vacation_enabled(),
-            'user_heating_enabled': app.heating_supervisor.get_user_heating_enabled(),
-        }
-    )
 
 
 if __name__ == '__main__':
