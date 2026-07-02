@@ -12,6 +12,23 @@ from http_client import HttpClient
 logger = logging.getLogger(__name__)
 
 
+def _linear_regression(xs, ys):
+    n = len(xs)
+    if n < 2:
+        return None
+
+    x_mean = sum(xs) / n
+    y_mean = sum(ys) / n
+    numerator = sum((x - x_mean) * (y - y_mean) for x, y in zip(xs, ys))
+    denominator = sum((x - x_mean) ** 2 for x in xs)
+    if denominator == 0:
+        return None
+
+    slope = numerator / denominator
+    intercept = y_mean - slope * x_mean
+    return slope, intercept
+
+
 @dataclass(frozen=True)
 class CesspoolData:
     distance_mm: int
@@ -93,4 +110,38 @@ class CesspoolDataCollector(Worker):
                                                                         last_updated=None)
 
     def get_history(self):
-        return self._history
+        with self._lock:
+            return list(self._history)
+
+    def predict_empty_date(self) -> Optional[DT]:
+        with self._lock:
+            history = list(self._history)
+
+        min_samples = self._config['cesspool']['prediction_min_samples']
+        if len(history) < min_samples:
+            return None
+
+        empty_at_free_percent = self._config['cesspool']['empty_at_free_percent']
+        target_level_percent = 100 - empty_at_free_percent
+
+        timestamps = []
+        levels = []
+        for measurement in history:
+            if not measurement.last_updated:
+                continue
+            timestamps.append(measurement.last_updated.timestamp())
+            levels.append(measurement.level_percent)
+
+        if len(timestamps) < min_samples:
+            return None
+
+        regression = _linear_regression(timestamps, levels)
+        if regression is None:
+            return None
+
+        slope, intercept = regression
+        if slope <= 0:
+            return None
+
+        predicted_timestamp = (target_level_percent - intercept) / slope
+        return DT.fromtimestamp(predicted_timestamp)

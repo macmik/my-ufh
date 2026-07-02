@@ -119,6 +119,7 @@ def index():
         'last_updated': outdoor_data_measurement.last_updated.strftime('%Y%m%d-%H:%M:%S'),
     }
     cesspool_data_measurement = app.cesspool_data_collector.get_last_data()
+    predicted_empty_date = app.cesspool_data_collector.predict_empty_date()
     cesspool_data = {
         'distance_mm': cesspool_data_measurement.distance_mm,
         'level_percent': cesspool_data_measurement.level_percent,
@@ -126,7 +127,12 @@ def index():
             cesspool_data_measurement.last_updated.strftime('%Y%m%d-%H:%M:%S')
             if cesspool_data_measurement.last_updated
             else None
-        )
+        ),
+        'predicted_empty_date': (
+            predicted_empty_date.strftime('%Y-%m-%d')
+            if predicted_empty_date
+            else '-'
+        ),
     }
 
     return render_template('index.html',
